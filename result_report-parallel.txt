@@ -1,0 +1,19 @@
+
+/* 
+ * Result Report Parallel 
+ */
+
+ Please enter the number of numbers to sort: 16
+ 2 received data 93 35 
+ 3 received data 86 92 
+ 4 received data 49 21 
+ 5 received data 62 27 
+ 6 received data 90 59 
+ 7 received data 63 26 
+
+ Array data is: 83 86 77 15 93 35 86 92 49 21 62 27 90 59 63 26 
+ 0 received data 83 86 
+ 1 received data 77 15 
+
+ Final sorted data: 15 21 26 27 35 49 59 62 63 77 83 86 86 90 92 93
+ 
