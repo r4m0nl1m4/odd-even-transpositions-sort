@@ -12,24 +12,25 @@
 int main(int argc, char** argv){
 
     /* Allocate serie environment variables */
-    int a[] = {15, 21, 26, 27, 35, 49, 59, 62, 63, 77, 83, 86, 86, 90, 92, 93};
-    int n = sizeof(a)/sizeof(a[0]);
+    int problemSize, *array;
     double executeTime;
     struct timeval start, end;
 
     gettimeofday(&start, 0);
+    
+    array = getRandomArrayByTerminal(&argc, const_cast<const char**>(argv));
 
-    oddEvenTranspositionSort(a, n);
+    problemSize = argc-1;
+
+    oddEvenTranspositionSort(array, problemSize);
 
     gettimeofday(&end, 0);
 
     executeTime = getExecuteTime(start, end); 
 
-    printf("\n");
-    for(int i=0; i<15; i++ ) printf(" %d ", a[i]); 
-    printf("\n");
+    saveResultReportOnFile("result_report-serie-runtime.txt", executeTime);
 
-    //saveResultReportOnFile("result_report-serie.txt", a, executeTime);
+    //printArray(array, problemSize);
 
     return 0;
 }

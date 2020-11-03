@@ -3,7 +3,7 @@
 //Created by r4m0nl1m4 28/10/2020
 
 //library(ies)
-#include <algorithm> 
+#include <algorithm>
 #include <iostream>
 #include <mpi.h>
 #include <stdbool.h>
@@ -16,21 +16,20 @@
 
 using namespace std;
 
-int compare (const void * a, const void * b)
-{
-    return ( *(int*)a > *(int*)b );
-}
-
 MPI_Status status;
 
-int main(int argc, char *argv[]){
+int main(int argc, char** argv){
 
     /* Allocate serie environment variables */
 	int numtasks, taskid;
-	int problemSize, nLocal, *data, recdata[100], recdata2[100], *temp, i;
+	int problemSize, nLocal, *array, recdata[100], recdata2[100], *temp, i;
+    double timeStart, timeEnd, executeTime;
 
 	/* Start parallel computing */
 	MPI_Init(&argc, &argv);
+
+    /* Getting the Start Time */
+    timeStart = MPI_Wtime();
 
     /* Getting the current processes (rank) */
     MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
@@ -44,74 +43,57 @@ int main(int argc, char *argv[]){
     isMaster = (taskid == 0);
     if(isMaster){
 
-        /* Getting the problemSize */
-        printf("\n Please enter the number of numbers to sort: ");
-        fflush(stdout);
-        scanf("%i", &problemSize);
+        array = getRandomArrayByTerminal(&argc, const_cast<const char**>(argv));
+
+        problemSize = argc-1;
 
         nLocal = problemSize/numtasks;
 
-        /* Getting the array to order */
-    	data = (int*)malloc(sizeof(int)*problemSize);
-        for( i=0; i<problemSize; i++) {
-           data[i] = rand()%100;
-        }
-
-        printf("\n Array data is: ");
-        for(i=0; i<problemSize; i++){
-       	    printf("%d ", data[i]);
-        }
-        printf("\n");
-
     }
-    else{
-    	data=NULL;
-    }
+    else
+    	array = NULL;
 
     /* Broadcasts a message from the master to all other processes of the communicator */
     MPI_Bcast(&nLocal, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
     /* Sends data from one process to all other processes in a communicator */
-    MPI_Scatter(data, nLocal, MPI_INT, &recdata, 100, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Scatter(array, nLocal, MPI_INT, &recdata, 100, MPI_INT, 0, MPI_COMM_WORLD);
 
     /* Getting the received data */
-    printf(" %d received data ",taskid);
-    for( i=0; i<nLocal; i++){
-        printf("%d ",recdata[i] );
-    }
-    printf("\n");
+    //printf(" %d received data ",taskid);
+    //printArray(recdata, nLocal);
 
     /* Sort elements in range */
     sort(recdata, recdata+nLocal);
 
     /* Begin the odd-even sort */
-    int oddrank, evenrank;
+    int taskOdd, taskEven;
 
     isEven = ( taskid % 2 == 0 );
     if(isEven){
-    	oddrank = taskid-1; 
-    	evenrank = taskid+1;
+    	taskOdd = taskid-1; 
+    	taskEven = taskid+1;
 	}
  	else { /* Odd */
- 		oddrank = taskid+1;
- 		evenrank = taskid-1;
+ 		taskOdd = taskid+1;
+ 		taskEven = taskid-1;
 	}
 
     /* Set the ranks of the processors at the end of the linear */
-    if(oddrank == -1 || oddrank == numtasks)
-        oddrank = MPI_PROC_NULL;
-    if(evenrank == -1 || evenrank == numtasks)
-        evenrank = MPI_PROC_NULL;
+    if(taskOdd == -1 || taskOdd == numtasks)
+        taskOdd = MPI_PROC_NULL;
+    if(taskEven == -1 || taskEven == numtasks)
+        taskEven = MPI_PROC_NULL;
     
     for( int phase=0; phase<numtasks-1; phase++ ) {
 
         isOdd = ( phase % 2 == 1 );
         if (isOdd) /* Odd */
-            MPI_Sendrecv(recdata, nLocal, MPI_INT, oddrank, 1, recdata2,
-            nLocal, MPI_INT, oddrank, 1, MPI_COMM_WORLD, &status);
+            MPI_Sendrecv(recdata, nLocal, MPI_INT, taskOdd, 1, recdata2,
+            nLocal, MPI_INT, taskOdd, 1, MPI_COMM_WORLD, &status);
         else /* Even */
-            MPI_Sendrecv(recdata, nLocal, MPI_INT, evenrank, 1, recdata2,
-            nLocal, MPI_INT, evenrank, 1, MPI_COMM_WORLD, &status);        
+            MPI_Sendrecv(recdata, nLocal, MPI_INT, taskEven, 1, recdata2,
+            nLocal, MPI_INT, taskEven, 1, MPI_COMM_WORLD, &status);        
 
         /* Extract nLocal after sorting the two */
         temp = (int*)malloc(nLocal*sizeof(int));
@@ -143,15 +125,17 @@ int main(int argc, char *argv[]){
     }
 
     /* Gathers together values from a group of processes */
-    MPI_Gather(recdata, nLocal, MPI_INT, data, nLocal, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Gather(recdata, nLocal, MPI_INT, array, nLocal, MPI_INT, 0, MPI_COMM_WORLD);
 
     isMaster = (taskid == 0);
     if(isMaster){
-        printf("\n Final sorted data: ");
-        for( i=0; i<problemSize; i++ ){
-            printf("%d ",data[i] );
-        }
-        printf("\n");
+
+        timeEnd = MPI_Wtime();
+
+        executeTime = timeEnd-timeStart;
+
+        saveResultReportOnFile("result_report-parallel-runtime.txt", executeTime);
+        saveOrderedArrayReportOnFile("result_report-ordered_array.txt", executeTime, problemSize, array);
     }
 
     MPI_Finalize();

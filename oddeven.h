@@ -11,6 +11,30 @@
 #include <stdlib.h>
 #include <cstdio>
 
+int* getRandomArray(int n){
+    int *array = (int*)malloc(sizeof(int)*n);
+    for( int i=0; i<n; i++ )
+       array[i] = rand() % 100;
+    return array;
+}
+
+int* getRandomArrayByTerminal(int *argc, const char **argv){
+    int size = *argc-1;
+    int *array  = (int*)calloc( size, sizeof(int) );
+    for( int i=0; i<size; i++ ){
+        sscanf( argv[i+1], "%d", &array[i] );
+    }
+    return array;
+}
+
+void printArray(int* array, int arraySize){
+    printf(" ");
+    for(int i=0; i<arraySize; i++ ){
+        printf("%d ", array[i]);
+    }
+    printf("\n\n");
+}
+
 void oddEvenTranspositionSort(int* array, int n){
     int i, temp;
     bool isEven;
