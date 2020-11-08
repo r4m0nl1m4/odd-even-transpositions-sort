@@ -1,30 +1,43 @@
 #!/bin/bash
 
 # To run on terminal: ./shellscript_start.sh
-rm result_report-array.txt
-rm result_report-cpu.txt
-rm result_report-ordered_array.txt
-rm result_report-serie-runtime.txt
-rm result_report-parallel-runtime.txt
-rm odd-even-transposition-sort-serial
-rm odd-even-transposition-sort-parallel
+
+fileName1="result_report-cpu.txt"
+fileName2="result_report-serie-runtime.txt"
+fileName3="result_report-parallel-runtime.txt"
+fileName4="result_report-speedup.txt"
+fileName5="result_report-array.txt"
+fileName6="result_report-ordered_array.txt"
+
+fileHeader1="\n/* \n * CPU Report                                 \n */\n"
+fileHeader2="\n/* \n * Serie Runtime Report In Seconds            \n */  "
+fileHeader3="\n/* \n * Parallel Runtime Report In Seconds         \n */  "
+fileHeader4="\n/* \n * Speedup Report In %                        \n */  "
+fileHeader5="\n/* \n * Array Report                               \n */\n"
+fileHeader6="\n/* \n * Parallel Calculation Report: Ordered Array \n */  "
+
+echo -e "$fileHeader1" >> $fileName1
+echo -e "$fileHeader2" >> $fileName2
+echo -e "$fileHeader3" >> $fileName3
+echo -e "$fileHeader4" >> $fileName4
+echo -e "$fileHeader5" >> $fileName5
+echo -e "$fileHeader6" >> $fileName6
+
+insertCPUInfo(){
+	cat /proc/cpuinfo | grep "$2" | uniq >> $1	
+}
+insertCPUInfo $fileName1 'model name'
+insertCPUInfo $fileName1 'vendor'
+insertCPUInfo $fileName1 'cpu cores'
+insertCPUInfo $fileName1 'siblings'
+insertCPUInfo $fileName1 'cache size'
 
 #serie compiler
-g++ -O0 -g -W -ansi -pedantic -std=c++11 -o odd-even-transposition-sort-serial odd-even-transposition-sort-serial.c
+g++ -O0 -g -W -ansi -pedantic -std=c++11 -o odd-even-transposition-sort-serial odd-even-transposition-sort-serial.cpp
 #parallel compiler
 mpic++ -g -Wall odd-even-transposition-sort-parallel.cpp -o odd-even-transposition-sort-parallel -lm
-
-echo -e "\n/* \n * Array Report \n */\n" >> "result_report-array.txt"
-echo -e "\n/* \n * CPU Report \n */\n" >> "result_report-cpu.txt"
-echo -e "\n/* \n * Ordered Array Report \n */" >> "result_report-ordered_array.txt"
-echo -e "\n/* \n * Runtime Report In Seconds\n */" >> "result_report-serie-runtime.txt"
-echo -e "\n/* \n * Runtime Report In Seconds\n */" >> "result_report-parallel-runtime.txt"
-
-cat /proc/cpuinfo | grep 'model name' | uniq >> "result_report-cpu.txt"
-cat /proc/cpuinfo | grep 'vendor' | uniq >> "result_report-cpu.txt"
-cat /proc/cpuinfo | grep 'cpu cores' | uniq >> "result_report-cpu.txt"
-cat /proc/cpuinfo | grep 'siblings' | uniq >> "result_report-cpu.txt"
-cat /proc/cpuinfo | grep 'cache size' | uniq >> "result_report-cpu.txt"
+#analysis compiler
+g++ -O0 -g -W -ansi -pedantic -std=c++11 -o calculates-serie-parallel-analysis calculates-serie-parallel-analysis.cpp
 
 #get a size set random array (range 0 to 100)
 problemSize=200
@@ -33,29 +46,55 @@ while [ "$count" -le $problemSize ]; do
  number[$count]=$(($RANDOM % 100))
  let "count += 1"
 done
-echo -e " ${number[*]}" >> "result_report-array.txt"
+echo -e " ${number[*]}" >> $fileName5
 
 #attempts by number of cores and size
 attempts=5
 for cores in 2 4 8
 do
-	echo -e "\n $cores $problemSize\t\c" >> "result_report-serie-runtime.txt"
-	echo -e "\n $cores $problemSize\t\c" >> "result_report-parallel-runtime.txt"
-	echo -e "\n $cores Cores CPU - Size Problem $sizeProblem \n" >> "result_report-ordered_array.txt"
+	echo -e "\n $cores $problemSize\t\c                        " >> $fileName2
+	echo -e "\n $cores $problemSize\t\c                        " >> $fileName3
+	echo -e "\n $cores $problemSize\t\c                        " >> $fileName4
+	echo -e "\n $cores Cores CPU - Size Problem $sizeProblem \n" >> $fileName6
 	for attempt in $(seq $attempts)
 	do
-		echo -e "  Try $attempt" >> "result_report-ordered_array.txt"
+		echo -e "  Try $attempt" >> $fileName6
 		#serie execute
 		./odd-even-transposition-sort-serial ${number[*]}
 		#parallel execute
 		mpirun -np $cores --oversubscribe ./odd-even-transposition-sort-parallel ${number[*]}
+		#analysis execute
+        ./calculates-serie-parallel-analysis
 	done
 done
 
-#txt2pdf
-vim result_report-cpu.txt -c "hardcopy > cpu.ps | q"; ps2pdf cpu.ps; rm cpu.ps
-vim result_report-array.txt -c "hardcopy > array.ps | q"; ps2pdf array.ps; rm array.ps
-vim result_report-serie-runtime.txt -c "hardcopy > serie-runtime.ps | q"; ps2pdf serie-runtime.ps; rm serie-runtime.ps
-vim result_report-parallel-runtime.txt -c "hardcopy > parallel-runtime.ps | q"; ps2pdf parallel-runtime.ps; rm parallel-runtime.ps
-vim result_report-ordered_array.txt -c "hardcopy > ordered_array.ps | q"; ps2pdf ordered_array.ps; rm ordered_array.ps
-pdfunite cpu.pdf array.pdf serie-runtime.pdf parallel-runtime.pdf ordered_array.pdf report.pdf; rm cpu.pdf; rm array.pdf; rm serie-runtime.pdf; rm parallel-runtime.pdf; rm ordered_array.pdf
+showOnTerminal(){
+	while IFS= read -r line
+	do
+	    echo "$line"
+	done <"$1"
+}
+showOnTerminal $fileName1
+showOnTerminal $fileName2
+showOnTerminal $fileName3
+showOnTerminal $fileName4
+showOnTerminal $fileName5
+echo -e
+
+txt2pdf(){
+    vim $1 -c "hardcopy > $1.ps | q";ps2pdf $1.ps; rm $1.ps
+}
+txt2pdf $fileName1
+txt2pdf $fileName2
+txt2pdf $fileName3
+txt2pdf $fileName4
+txt2pdf $fileName5
+txt2pdf $fileName6
+
+pdfunite $fileName1.pdf $fileName2.pdf $fileName3.pdf $fileName4.pdf $fileName5.pdf $fileName6.pdf report.pdf
+
+rm $fileName1.pdf $fileName2.pdf $fileName3.pdf $fileName4.pdf $fileName5.pdf $fileName6.pdf
+rm $fileName1 $fileName2 $fileName3 $fileName4 $fileName5 $fileName6
+rm odd-even-transposition-sort-serial
+rm odd-even-transposition-sort-parallel
+rm calculates-serie-parallel-analysis
