@@ -9,8 +9,10 @@
 //                                                                         //
 // Names: oddeven.h                                                        //
 //        report.h                                                         //
-//        odd-even-transposition-sort-serial.c                             //
+//        report.pdf                                                       //
+//        odd-even-transposition-sort-serial.cpp                           //
 //        odd-even-transposition-sort-parallel.cpp                         //
+//        calculates-serie-parallel-analysis.cpp                           //
 //        shellscript_start.sh                                             //
 //        README.txt                                                       //
 // Date: 28/10/2020                                                        //
@@ -32,3 +34,5 @@
 //     ~$ bash shellscript_start.sh                                        //
 //                                                                         //
 /////////////////////////////////////////////////////////////////////////////
+
+
