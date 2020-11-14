@@ -13,7 +13,7 @@ fileName6="result_report-ordered_array.txt"
 fileHeader1="\n/* \n * CPU Report                                 \n */\n"
 fileHeader2="\n/* \n * Serie Runtime Report In Seconds            \n */  "
 fileHeader3="\n/* \n * Parallel Runtime Report In Seconds         \n */  "
-fileHeader4="\n/* \n * Speedup Report In %                        \n */  "
+fileHeader4="\n/* \n * Speedup Report                             \n */  "
 fileHeader5="\n/* \n * Array Report                               \n */\n"
 fileHeader6="\n/* \n * Parallel Calculation Report: Ordered Array \n */  "
 
