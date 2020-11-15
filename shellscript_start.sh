@@ -4,18 +4,24 @@
 
 fileName0="README.txt"
 fileName1="result_report-cpu.txt"
-fileName2="result_report-serie-runtime.txt"
-fileName3="result_report-parallel-runtime.txt"
-fileName4="result_report-speedup.txt"
-fileName5="result_report-array.txt"
-fileName6="result_report-ordered_array.txt"
+fileName2="result_report-problem_size.txt"
+fileName3="result_report-serie-runtime.txt"
+fileName4="result_report-parallel-cores.txt"
+fileName5="result_report-parallel-runtime.txt"
+fileName6="result_report-speedup.txt"
+fileName7="result_report-efficiency.txt"
+fileName8="result_report-array.txt"
+fileName9="result_report-ordered_array.txt"
 
 fileHeader1="\n/* \n * CPU Report                                 \n */\n"
-fileHeader2="\n/* \n * Serie Runtime Report In Seconds            \n */  "
-fileHeader3="\n/* \n * Parallel Runtime Report In Seconds         \n */  "
-fileHeader4="\n/* \n * Speedup Report                             \n */  "
-fileHeader5="\n/* \n * Array Report                               \n */\n"
-fileHeader6="\n/* \n * Parallel Calculation Report: Ordered Array \n */  "
+fileHeader2="\n/* \n * Problem Size Report                        \n */  "
+fileHeader3="\n/* \n * Serie Runtime Report In Seconds            \n */  "
+fileHeader4="\n/* \n * Parallel Cores Report                      \n */  "
+fileHeader5="\n/* \n * Parallel Runtime Report In Seconds         \n */  "
+fileHeader6="\n/* \n * Speedup Report                             \n */  "
+fileHeader7="\n/* \n * Efficiency Report                          \n */  "
+fileHeader8="\n/* \n * Array Report                               \n */\n"
+fileHeader9="\n/* \n * Parallel Calculation Report: Ordered Array \n */  "
 
 echo -e "$fileHeader1" >> $fileName1
 echo -e "$fileHeader2" >> $fileName2
@@ -23,6 +29,9 @@ echo -e "$fileHeader3" >> $fileName3
 echo -e "$fileHeader4" >> $fileName4
 echo -e "$fileHeader5" >> $fileName5
 echo -e "$fileHeader6" >> $fileName6
+echo -e "$fileHeader7" >> $fileName7
+echo -e "$fileHeader8" >> $fileName8
+echo -e "$fileHeader9" >> $fileName9
 
 insertCPUInfo(){
 	cat /proc/cpuinfo | grep "$2" | uniq >> $1	
@@ -47,20 +56,24 @@ while [ "$count" -le $problemSize ]; do
  number[$count]=$(($RANDOM % 100))
  let "count += 1"
 done
-echo -e " ${number[*]}" >> $fileName5
+echo -e " ${number[*]}" >> $fileName8
 
 #attempts by number of cores and size
 attempts=5
 for cores in 2 4 8
 do
-	serie=' '
-	echo -e "\n $serie $problemSize\t\c                        " >> $fileName2
-	echo -e "\n $cores $problemSize\t\c                        " >> $fileName3
-	echo -e "\n $cores $problemSize\t\c                        " >> $fileName4
-	echo -e "\n $cores Cores CPU - Size Problem $sizeProblem \n" >> $fileName6
+	echo -e "" >> $fileName2
+	echo -e "" >> $fileName3
+	echo -e "" >> $fileName4
+	echo -e "" >> $fileName5
+	echo -e "" >> $fileName6
+	echo -e "" >> $fileName7
+	echo -e "\n $cores Cores CPU - Size Problem $sizeProblem \n" >> $fileName9
 	for attempt in $(seq $attempts)
 	do
-		echo -e "  Try $attempt" >> $fileName6
+        echo -e ":$problemSize\c" >> $fileName2
+        echo -e ":$cores\c      " >> $fileName4
+		echo -e "  Try $attempt " >> $fileName9
 		#serie execute
 		./odd-even-transposition-sort-serial ${number[*]}
 		#parallel execute
@@ -81,6 +94,9 @@ showOnTerminal $fileName2
 showOnTerminal $fileName3
 showOnTerminal $fileName4
 showOnTerminal $fileName5
+showOnTerminal $fileName6
+showOnTerminal $fileName7
+showOnTerminal $fileName8
 echo -e
 
 txt2pdf(){
@@ -93,11 +109,14 @@ txt2pdf $fileName3
 txt2pdf $fileName4
 txt2pdf $fileName5
 txt2pdf $fileName6
+txt2pdf $fileName7
+txt2pdf $fileName8
+txt2pdf $fileName9
 
-pdfunite $fileName0.pdf $fileName1.pdf $fileName2.pdf $fileName3.pdf $fileName4.pdf $fileName5.pdf $fileName6.pdf report.pdf
+pdfunite $fileName0.pdf $fileName1.pdf $fileName2.pdf $fileName3.pdf $fileName4.pdf $fileName5.pdf $fileName6.pdf $fileName7.pdf $fileName8.pdf $fileName9.pdf report.pdf
 
-rm $fileName0.pdf $fileName1.pdf $fileName2.pdf $fileName3.pdf $fileName4.pdf $fileName5.pdf $fileName6.pdf
-rm $fileName1 $fileName2 $fileName3 $fileName4 $fileName5 $fileName6
+rm $fileName0.pdf $fileName1.pdf $fileName2.pdf $fileName3.pdf $fileName4.pdf $fileName5.pdf $fileName6.pdf $fileName7.pdf $fileName8.pdf $fileName9.pdf
+rm $fileName1 $fileName2 $fileName3 $fileName4 $fileName5 $fileName6 $fileName7 $fileName8 $fileName9
 rm odd-even-transposition-sort-serial
 rm odd-even-transposition-sort-parallel
 rm calculates-serie-parallel-analysis
