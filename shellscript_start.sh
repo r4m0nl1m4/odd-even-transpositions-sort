@@ -68,7 +68,7 @@ do
 	echo -e "" >> $fileName5
 	echo -e "" >> $fileName6
 	echo -e "" >> $fileName7
-	echo -e "\n $cores Cores CPU - Size Problem $sizeProblem \n" >> $fileName9
+	echo -e "\n $cores Cores CPU - Size Problem $problemSize \n" >> $fileName9
 	for attempt in $(seq $attempts)
 	do
         echo -e ":$problemSize\c" >> $fileName2
