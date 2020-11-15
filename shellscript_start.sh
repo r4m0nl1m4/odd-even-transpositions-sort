@@ -53,7 +53,8 @@ echo -e " ${number[*]}" >> $fileName5
 attempts=5
 for cores in 2 4 8
 do
-	echo -e "\n $cores $problemSize\t\c                        " >> $fileName2
+	serie=' '
+	echo -e "\n $serie $problemSize\t\c                        " >> $fileName2
 	echo -e "\n $cores $problemSize\t\c                        " >> $fileName3
 	echo -e "\n $cores $problemSize\t\c                        " >> $fileName4
 	echo -e "\n $cores Cores CPU - Size Problem $sizeProblem \n" >> $fileName6
