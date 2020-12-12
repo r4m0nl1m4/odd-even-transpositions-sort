@@ -1,5 +1,5 @@
 
-//Main for "oddeven" C application
+//Main for "oddeven" C++ application
 //Created by r4m0nl1m4 28/10/2020
 
 //Guard

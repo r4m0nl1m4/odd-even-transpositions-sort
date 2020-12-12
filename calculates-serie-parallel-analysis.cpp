@@ -1,5 +1,5 @@
 
-//Main for "calculates-speedup" C application
+//Main for "calculates-speedup" C++ application
 //Created by r4m0nl1m4 14/10/2020
 
 //library(ies)

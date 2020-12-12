@@ -1,5 +1,5 @@
 
-//Main for "odd-even-transposition-sort-parallel" C application
+//Main for "odd-even-transposition-sort-parallel" C++ application
 //Created by r4m0nl1m4 28/10/2020
 
 //library(ies)
